@@ -22,19 +22,24 @@ class const():
 class UserDetailPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
+        """
+        TODO Description for has_permission
+        """
         user = User.get_instance(request)
 
         if not user:
             return False
 
         site_user_role = request.META['PATH_INFO'].split('/')[-1]
-        if request.method == 'GET' and (user.pk == int(site_user_role) or user.role == const.LIBRARIAN_ROLE):
+        # TODO description of select statements
+        if request.method == 'GET' & (user.pk == int(site_user_role) | user.role == const.LIBRARIAN_ROLE):
             result = True
-        elif request.method == 'POST' and (user.pk == int(site_user_role) or user.role == const.LIBRARIAN_ROLE):
+        elif request.method == 'POST' & (user.pk == int(site_user_role) | user.role == const.LIBRARIAN_ROLE):
             result = True
-        elif request.method == 'DELETE' and user.role == const.LIBRARIAN_ROLE:
+        elif request.method == 'DELETE' & user.role == const.LIBRARIAN_ROLE:
             result = True
         elif request.method == 'PATCH':
+            # TODO description of select statements 
             if user.role == const.LIBRARIAN_ROLE:
                 result = True
             elif user.pk == int(site_user_role):
@@ -85,13 +90,10 @@ class User(AbstractUser):
                     id=user_id
                 )
 
-            except jwt.ExpiredSignature or jwt.DecodeError or jwt.InvalidTokenError:
+            # TODO description of exception types
+            except jwt.ExpiredSignature | jwt.DecodeError | jwt.InvalidTokenError | User.DoesNotExist | KeyError:
                 return None
-            except User.DoesNotExist:
-                return None
-            except KeyError:
-                return None
-
+            
             return user
         else:
             return None
@@ -145,12 +147,14 @@ class UserDetail(APIView):
         """
         result = {'status': '', 'data': {}}
 
+        # TODO description for try-except shell
         try:
             user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
             result['status'] = const.HTTP_404_NOT_FOUND
             return Response(result, status=status.HTTP_404_NOT_FOUND)
 
+        # TODO description for calling methods
         serializer = UserDetailSerializer(user)
         result['data'] = serializer.data
         result['status'] = const.HTTP_200_OK
@@ -204,10 +208,13 @@ class UserDetail(APIView):
         """
         if user_id:
             
+            # TODO description for try-except shell
             try:
                 user = User.objects.get(pk=user_id)
             except User.DoesNotExist:
                 return Response({'status': const.HTTP_404_NOT_FOUND, 'data': {}}, status=status.HTTP_404_NOT_FOUND)
+            
+            # TODO description for calling methods
             serializer = UserDetailSerializer(user)
             user.delete()
             
