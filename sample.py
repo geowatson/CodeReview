@@ -75,7 +75,7 @@ class User(AbstractUser):
         """
         if 'HTTP_HOST' in request.META:
             try:
-                token = re.split(' ', request.META['HTTP_BEARER'])[1]
+                token = request.META['HTTP_BEARER'].split()[1]
                 payload = jwt.decode(token, const.SECRET_KEY)
                 email = payload['email']
                 user_id = payload['user_id']
@@ -91,9 +91,6 @@ class User(AbstractUser):
                 return None
             except KeyError:
                 return None
-            # empty session catcher
-            except jwt.DecodeError:
-                return None
 
             return user
         else:
@@ -102,7 +99,7 @@ class User(AbstractUser):
 
 """
     ------------------------------------
-    Classes to handel user serialization
+    Classes to handle user serialization
     ------------------------------------
 """
 
@@ -126,7 +123,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 """
     -----------------------------------
-    Classes to handel user API requests
+    Classes to handle user API requests
     -----------------------------------
 """
 
@@ -187,7 +184,7 @@ class UserDetail(APIView):
             # NOTE: User.get_instance(request).role - the instance of requester
             if User.get_instance(request).role != const.LIBRARIAN_ROLE:
                 return Response(result, status=status.HTTP_202_ACCEPTED)
-            # If pass, then save all
+            
             serializer.save()
             result['status'] = const.HTTP_202_ACCEPTED
             return Response(result, status=status.HTTP_202_ACCEPTED)
@@ -208,13 +205,16 @@ class UserDetail(APIView):
         """
 
         if user_id:
+            
             try:
                 user = User.objects.get(pk=user_id)
             except User.DoesNotExist:
                 return Response({'status': const.HTTP_404_NOT_FOUND, 'data': {}}, status=status.HTTP_404_NOT_FOUND)
             serializer = UserDetailSerializer(user)
             user.delete()
+            
             return Response({'status': const.HTTP_200_OK, 'data': serializer.data})
+        
         else:
             return Response({'status': const.HTTP_400_BAD_REQUEST, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
 
