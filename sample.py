@@ -31,6 +31,7 @@ class UserDetailPermission(permissions.BasePermission):
             return False
 
         site_user_role = request.META['PATH_INFO'].split('/')[-1]
+        
         # TODO description of select statements
         if request.method == 'GET' & (user.pk == int(site_user_role) | user.role == const.LIBRARIAN_ROLE):
             result = True
@@ -153,8 +154,7 @@ class UserDetail(APIView):
         except User.DoesNotExist:
             result['status'] = const.HTTP_404_NOT_FOUND
             return Response(result, status=status.HTTP_404_NOT_FOUND)
-
-        # TODO description for calling methods
+        
         serializer = UserDetailSerializer(user)
         result['data'] = serializer.data
         result['status'] = const.HTTP_200_OK
@@ -221,4 +221,4 @@ class UserDetail(APIView):
             return Response({'status': const.HTTP_200_OK, 'data': serializer.data})
         
         else:
-            return Response({'status': const.HTTP_400_BAD_REQUEST, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': const.HTTP_401_UNAUTHORIZED, 'data': {}}, status=status.HTTP_401_UNAUTHORIZED)
