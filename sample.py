@@ -152,12 +152,10 @@ class UserDetail(APIView):
         try:
             user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            result['status'] = const.HTTP_404_NOT_FOUND
             return Response(result, status=status.HTTP_404_NOT_FOUND)
         
         serializer = UserDetailSerializer(user)
         result['data'] = serializer.data
-        result['status'] = const.HTTP_200_OK
         return Response(result, status=status.HTTP_200_OK)
 
     @staticmethod
@@ -175,7 +173,6 @@ class UserDetail(APIView):
         try:
             user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            result['status'] = const.HTTP_404_NOT_FOUND
             return Response(result, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserDetailSerializer(user, data=request.data, partial=True)
@@ -189,10 +186,8 @@ class UserDetail(APIView):
                 return Response(result, status=status.HTTP_202_ACCEPTED)
             
             serializer.save()
-            result['status'] = const.HTTP_202_ACCEPTED
             return Response(result, status=status.HTTP_202_ACCEPTED)
 
-        result['status'] = const.HTTP_400_BAD_REQUEST
         result['data'] = serializer.errors
 
         return Response(result, status=status.HTTP_400_BAD_REQUEST)
