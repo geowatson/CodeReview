@@ -1,17 +1,3 @@
-from django.utils.datastructures import MultiValueDictKeyError
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import serializers
-from rest_framework import permissions
-from rest_framework import status
-
-import jwt
-import re
-
-
 class const():
     # API Return statuses
     HTTP_200_OK = 'HTTP_200_OK'
@@ -31,49 +17,6 @@ class const():
     LIBRARIAN_ROLE = 300
 
     SECRET_KEY = '@!s!f%xjyvsd-ym%t#&s0t9!p4x71&dmf=ws7!*7#nej)3eag*'
-
-
-class UserPermission(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        user = User.get_instance(request)
-
-        if not user:
-            return False
-
-        if request.method == 'GET':
-            result = True
-        elif request.method == 'POST':
-            result = True
-        elif request.method == 'PATCH':
-            result = True
-        else:
-            result = False
-
-        return result
-
-
-class LibrariantPermission(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-
-        user = User.get_instance(request)
-
-        if not user:
-            return False
-
-        if request.method == 'GET' and user.role == const.LIBRARIAN_ROLE:
-            result = True
-        elif request.method == 'POST' and user.role == const.LIBRARIAN_ROLE:
-            result = True
-        elif request.method == 'DELETE' and user.role == const.LIBRARIAN_ROLE:
-            result = True
-        elif request.method == 'PATCH' and user.role == const.LIBRARIAN_ROLE:
-            result = True
-        else:
-            result = False
-
-        return result
 
 
 class UserDetailPermission(permissions.BasePermission):
@@ -123,10 +66,6 @@ class User(AbstractUser):
     phone = models.DecimalField(unique=True, default=0, max_digits=11, decimal_places=0)
     telegram_id = models.IntegerField(default=0)
 
-    def set_telegram_id(self, telegram_id):
-        self.telegram_id = telegram_id
-        self.save()
-
     @staticmethod
     def get_instance(request):
         """
@@ -169,20 +108,6 @@ class User(AbstractUser):
 """
 
 
-class UserResponseDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id',
-                  'email',
-                  'role',
-                  'first_name',
-                  'last_name',
-                  'address',
-                  'phone',
-                  'username',
-                  'telegram_id')
-
-
 class UserDetailSerializer(serializers.ModelSerializer):
     orders = serializers.SerializerMethodField()
 
@@ -205,33 +130,6 @@ class UserDetailSerializer(serializers.ModelSerializer):
     Classes to handel user API requests
     -----------------------------------
 """
-
-
-class Users(APIView):
-    """
-       Class to get list of all Users
-    """
-    permission_classes = (LibrariantPermission,)
-
-    @staticmethod
-    def get(request):
-        """
-            GET request to get list of all Users
-            :param request:
-            :return: HTTP_200_OK and JSON-Documents: if all good
-                     HTTP_404_NOT_FOUND: if users don`t exist
-        """
-        result = {'status': '', 'data': {}}
-
-        if not User.objects.all():
-            result['status'] = const.HTTP_404_NOT_FOUND
-            return Response(result, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = UserResponseDataSerializer(User.objects.all(), many=True)
-        result['data'] = serializer.data
-        result['status'] = const.HTTP_200_OK
-
-        return Response(result, status=status.HTTP_200_OK)
 
 
 class UserDetail(APIView):
@@ -316,7 +214,7 @@ class UserDetail(APIView):
                 user = User.objects.get(pk=user_id)
             except User.DoesNotExist:
                 return Response({'status': const.HTTP_404_NOT_FOUND, 'data': {}}, status=status.HTTP_404_NOT_FOUND)
-            serializer = UserResponseDataSerializer(user)
+            serializer = UserDetailSerializer(user)
             user.delete()
             return Response({'status': const.HTTP_200_OK, 'data': serializer.data})
         else:
