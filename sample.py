@@ -61,7 +61,7 @@ class User(AbstractUser):
                          (const.LIBRARIAN_ROLE, 'Librarian')]
 
     role = models.IntegerField(default=const.BASIC_USER_ROLE, choices=USER_TYPE_CHOICES)
-    address = models.CharField(max_length=100, default='innopolis')
+    address = models.CharField(max_length=100, default='No address')
     phone = models.DecimalField(unique=True, default=0, max_digits=11, decimal_places=0)
     telegram_id = models.IntegerField(default=0)
 
@@ -166,7 +166,6 @@ class UserDetail(APIView):
                      HTTP_400_BAD_REQUEST and JSON-Document with errors: data is not valid
                      HTTP_404_NOT_FOUND: user with such id is not found
         """
-
         result = {'status': '', 'data': {}}
 
         try:
@@ -203,7 +202,6 @@ class UserDetail(APIView):
                  HTTP_404_NOT_FOUND: if user with such id not found
                  HTTP_400_BAD_REQUEST: if wrong format of input data
         """
-
         if user_id:
             
             try:
@@ -217,8 +215,3 @@ class UserDetail(APIView):
         
         else:
             return Response({'status': const.HTTP_400_BAD_REQUEST, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
