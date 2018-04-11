@@ -45,6 +45,7 @@ class UserDetailPermission(permissions.BasePermission):
                 result = True
             elif user.pk == int(site_user_role):
                 result = True
+                # TODO description of this piece of code (of the try-except shell)
                 try:
                     request.data['role']
                     result = False
