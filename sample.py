@@ -16,7 +16,7 @@ class const():
     PROFESSOR_ROLE = 240
     LIBRARIAN_ROLE = 300
 
-    SECRET_KEY = '@!s!f%xjyvsd-ym%t#&s0t9!p4x71&dmf=ws7!*7#nej)3eag*'
+    SECRET_KEY = 'secret_key'
 
 
 class UserDetailPermission(permissions.BasePermission):
