@@ -27,18 +27,17 @@ class UserDetailPermission(permissions.BasePermission):
         if not user:
             return False
 
-        if request.method == 'GET' and (user.pk == int(request.META['PATH_INFO'].split('/')[-1])
-                                        or user.role == const.LIBRARIAN_ROLE):
+        site_user_role = request.META['PATH_INFO'].split('/')[-1]
+        if request.method == 'GET' and (user.pk == int(site_user_role) or user.role == const.LIBRARIAN_ROLE):
             result = True
-        elif request.method == 'POST' and (user.pk == int(request.META['PATH_INFO'].split('/')[-1])
-                                           or user.role == const.LIBRARIAN_ROLE):
+        elif request.method == 'POST' and (user.pk == int(site_user_role) or user.role == const.LIBRARIAN_ROLE):
             result = True
         elif request.method == 'DELETE' and user.role == const.LIBRARIAN_ROLE:
             result = True
         elif request.method == 'PATCH':
             if user.role == const.LIBRARIAN_ROLE:
                 result = True
-            elif user.pk == int(request.META['PATH_INFO'].split('/')[-1]):
+            elif user.pk == int(site_user_role):
                 result = True
                 try:
                     request.data['role']
