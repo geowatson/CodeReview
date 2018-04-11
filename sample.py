@@ -206,8 +206,9 @@ class UserDetail(APIView):
                  HTTP_404_NOT_FOUND: if user with such id not found
                  HTTP_400_BAD_REQUEST: if wrong format of input data
         """
-        if user_id:
-            
+        try:
+            # check whether type of user_id is int or not (with raised exception)
+            user_id // 1
             # TODO description for try-except shell
             try:
                 user = User.objects.get(pk=user_id)
@@ -220,5 +221,5 @@ class UserDetail(APIView):
             
             return Response({'status': const.HTTP_200_OK, 'data': serializer.data})
         
-        else:
-            return Response({'status': const.HTTP_401_UNAUTHORIZED, 'data': {}}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception:
+            return Response({'status': const.HTTP_400_BAD_REQUEST, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
